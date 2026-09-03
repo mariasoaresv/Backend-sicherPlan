@@ -131,7 +131,7 @@ class OrdemServico(Base) :
     
 
 class FichaRegistro(Base) :
-    __tablename__ = "ficha_servico"
+    __tablename__ = "ficha_registro"
     id = Column(Integer, primary_key=True, index=True)
     colaborador_id = Column(Integer, ForeignKey("colaborador.id"), nullable=False)
     tipo_documento = Column(String, nullable=False)

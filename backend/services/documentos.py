@@ -1,28 +1,26 @@
 import os
 import re
-from datetime import datetime
 from docxtpl import DocxTemplate
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
-from backend import models, schemas, main
+import schemas
 
+def gerar_docx_certificado(dados: schemas.CertificadoDocumentoDados, db: Session = None) -> str:
+    # função usada apenas para gerar o .docx, descomentar quando rodar
+    # novo_registro = main.criar_colaborador_certificado(db=db, item=dados)
+    # colaborador = novo_registro.colaborador
+    # certificado_base = novo_registro.certificado
+    # nome_funcao = colaborador.funcao.nome if colaborador.funcao else "Não informada"
 
-def gerar_docx_certificado(dados: schemas.ColaboradorCertificadoCreate, db: Session) -> str:
-    novo_registro = main.criar_colaborador_certificado(db=db, item=dados)
-
-    colaborador = novo_registro.colaborador
-    certificado_base = novo_registro.certificado
-    nome_funcao = colaborador.funcao.nome if colaborador.funcao else "Não informada"
-    
     contexto = {
-        "nome_colaborador": colaborador.nome,
-        "cpf": colaborador.cpf,
-        "funcao_colaborador": nome_funcao,
-        "data_conclusao": dados.data_conclusao.strftime("%d/%m/%Y"),
+        "nome_colaborador": dados.nome_colaborador,
+        "cpf": dados.cpf,
+        "funcao_colaborador": dados.funcao_colaborador,
+        "data_conclusao": dados.data_conclusao.strftime("%d/%m/%Y") if hasattr(dados.data_conclusao, "strftime") else dados.data_conclusao,
     }
 
-    template_path = "backend/templates/modelo_certificado.docx"
+    template_path = "templates/modelo_certificado.docx"
     if not os.path.exists(template_path):
         raise HTTPException(status_code=500, detail="Modelo .docx não encontrado em backend/templates/")
 
@@ -30,11 +28,12 @@ def gerar_docx_certificado(dados: schemas.ColaboradorCertificadoCreate, db: Sess
     doc.render(contexto)
 
     #deixa essa pasta pra armazenar os arquivos gerados pra teste mas ignorei no git
-    pasta_saida = "backend/arquivos_gerados/certificados"
+    # excluir depois de testar
+    pasta_saida = "arquivos_gerados/certificados"
     os.makedirs(pasta_saida, exist_ok=True)
     
-    nome_sanitizado = re.sub(r'[^a-zA-Z0-9_]', '_', colaborador.nome)
-    caminho_saida = f"{pasta_saida}/Certificado_{nome_sanitizado}_{novo_registro.id}.docx"
+    nome_sanitizado = re.sub(r'[^a-zA-Z0-9_]', '_', dados.nome_colaborador)
+    caminho_saida = f"{pasta_saida}/Certificado_{nome_sanitizado}.docx"
     doc.save(caminho_saida)
 
     # não sei o caminho da url que vamos colocar no bd mas fica a função salva aqui

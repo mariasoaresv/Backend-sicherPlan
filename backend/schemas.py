@@ -185,6 +185,13 @@ class ColaboradorCertificadoResponse(ColaboradorCertificadoBase):
     class Config:
         from_attributes = True
 
+#-------------------Geração de Documento (Certificado Word)-------------------
+class CertificadoDocumentoDados(BaseModel):
+    nome_colaborador: str
+    cpf: str
+    funcao_colaborador: str
+    data_conclusao: str
+
 #-------------------Ordem Servico-------------------
 class OrdemServicoBase(BaseModel):
     colaborador_id: int

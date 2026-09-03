@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from database import engine, Base, get_db
 import models, schemas
+from services.documentos import gerar_docx_certificado
 
 app = FastAPI(title="SicherPlan API")
 
@@ -24,6 +25,13 @@ Base.metadata.create_all(bind=engine)
 @app.get("/")
 def home():
     return {"status": "Backend do SicherPlan rodando"}
+
+
+# ----------------- Teste: Geração de Certificado Word -----------------
+@app.post("/testes/gerar-certificado-word")
+def gerar_certificado_word_teste(dados: schemas.CertificadoDocumentoDados, db: Session = Depends(get_db)):
+    caminho_saida = gerar_docx_certificado(dados=dados, db=db)
+    return {"mensagem": "Certificado gerado com sucesso", "caminho_arquivo": caminho_saida}
 
 
 # ----------------- Setor -----------------
@@ -255,6 +263,8 @@ def deletar_aso_por_id(aso_id: int, db: Session = Depends(get_db)):
 
 
 # ----------------- Certificado -----------------
+
+
 @app.post("/certificados", response_model=schemas.CertificadoResponse)
 def criar_certificado(certificado: schemas.CertificadoCreate, db: Session = Depends(get_db)):
     novo_certificado = models.Certificado(**certificado.model_dump())

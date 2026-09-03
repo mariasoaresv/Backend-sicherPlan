@@ -3,6 +3,7 @@
 **/venv/
 **/__pycache__/
 **/arquivos_gerados/
+**/testar_geracao.py
 
 #Ignorar arquivos IDE
 .vscode

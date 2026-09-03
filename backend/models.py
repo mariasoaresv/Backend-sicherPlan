@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, Date, DateTime, func, ForeignKey
 from database import Base #Importa a base configurada no database.py
+from sqlalchemy.orm import relationship
 
 class Colaborador(Base):
     __tablename__ = "colaborador"
@@ -15,7 +16,8 @@ class Colaborador(Base):
     ativo = Column(Boolean, default=True)
     criado_em = Column(DateTime, nullable=False, default=func.now())
     atualizado_em = Column(DateTime, nullable=False, default=func.now(), onupdate=func.now())
-    
+    funcao = relationship("Funcao", back_populates="colaboradores")
+    setor = relationship("Setor", back_populates="colaboradores")
 
 class Setor(Base) :
     __tablename__ = "setor"
@@ -25,18 +27,19 @@ class Setor(Base) :
     ativo = Column(Boolean, default=True)
     criado_em = Column(DateTime, nullable=False, default=func.now())
     atualizado_em = Column(DateTime, nullable=False, default=func.now(),onupdate=func.now())
-    
+    colaboradores = relationship("Colaborador", back_populates="setor")
     
 class Funcao(Base) :
     __tablename__ = "funcao"
     id = Column(Integer, primary_key=True, index=True)
     nome = Column(String, nullable=False)
     setor_id = Column(Integer, ForeignKey("setor.id"), nullable=False)
+    setor = relationship("Setor", back_populates="funcoes")
     descricao = Column(String)
     ativo = Column(Boolean, default=True)
     criado_em = Column(DateTime, nullable=False, default=func.now())
     atualizado_em = Column(DateTime, nullable=False, default=func.now(),onupdate=func.now())
-    
+    colaboradores = relationship("Colaborador", back_populates="funcao")
 
 class Epi(Base) :
     __tablename__ = "epi"
@@ -117,6 +120,8 @@ class ColaboradorCertificado(Base) :
     data_vencimento = Column(DateTime)
     url_certificado = Column(String)
     criado_em = Column(DateTime, nullable=False, default=func.now())
+    colaborador = relationship("Colaborador")
+    certificado = relationship("Certificado")
     
     
 class OrdemServico(Base) :
